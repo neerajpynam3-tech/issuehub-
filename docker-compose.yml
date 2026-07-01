@@ -1,0 +1,37 @@
+# Brings up Postgres and the backend API together.
+# Reviewers can run the whole backend with: docker compose up --build
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: issuehub
+      POSTGRES_PASSWORD: issuehub
+      POSTGRES_DB: issuehub
+    ports:
+      # Host port is configurable to avoid clashing with a local Postgres.
+      # Defaults to 5432; override with DB_HOST_PORT (see repo-root .env).
+      - "${DB_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U issuehub"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://issuehub:issuehub@db:5432/issuehub
+      JWT_SECRET: change-me-in-production
+      CORS_ORIGINS: http://localhost:5173
+      AI_PROVIDER: mock
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

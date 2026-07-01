@@ -1,0 +1,15 @@
+# Never commit real environment files (they hold secrets like the Neon DB URL).
+.env
+**/.env
+!**/.env.example
+
+# OS / editor / tooling
+.DS_Store
+.vscode/
+.idea/
+.claude/
+
+# The original assignment brief (company's document) — keep it out of a public repo.
+# Delete these lines if you want to include it.
+Assignment.docx
+Assignment.docx.pdf
